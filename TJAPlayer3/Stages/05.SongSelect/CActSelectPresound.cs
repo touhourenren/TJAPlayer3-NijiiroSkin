@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using FDK;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace TJAPlayer3
 {
@@ -18,6 +20,10 @@ namespace TJAPlayer3
 		{
 			if( this.sound != null )
 			{
+				if(token != null)
+				{
+					token.Cancel();
+				}
 				this.sound.t再生を停止する();
 				TJAPlayer3.Sound管理.tサウンドを破棄する( this.sound );
 				this.sound = null;
@@ -30,30 +36,20 @@ namespace TJAPlayer3
             if( ( cスコア != null ) && ( ( !( cスコア.ファイル情報.フォルダの絶対パス + cスコア.譜面情報.strBGMファイル名 ).Equals( this.str現在のファイル名 ) || ( this.sound == null ) ) || !this.sound.b再生中 ) )
 			{
 				this.tサウンド停止();
-				this.tBGMフェードイン開始();
+				this.tBGMフェードアウト開始();
                 this.long再生位置 = -1;
 				if( ( cスコア.譜面情報.strBGMファイル名 != null ) && ( cスコア.譜面情報.strBGMファイル名.Length > 0 ) )
 				{
 					//this.ct再生待ちウェイト = new CCounter( 0, CDTXMania.ConfigIni.n曲が選択されてからプレビュー音が鳴るまでのウェイトms, 1, CDTXMania.Timer );
                     if(TJAPlayer3.Sound管理.GetCurrentSoundDeviceType() != "DirectSound")
                     {
-                        this.ct再生待ちウェイト = new CCounter(0, 1, 270, TJAPlayer3.Timer);
+                        this.ct再生待ちウェイト = new CCounter(0, 1, 200, TJAPlayer3.Timer);
                     } else
                     {
-                        this.ct再生待ちウェイト = new CCounter(0, 1, 500, TJAPlayer3.Timer);
+                        this.ct再生待ちウェイト = new CCounter(0, 1, 200, TJAPlayer3.Timer);
                     }
                 }
 			}
-
-            //if( ( cスコア != null ) && ( ( !( cスコア.ファイル情報.フォルダの絶対パス + cスコア.譜面情報.Presound ).Equals( this.str現在のファイル名 ) || ( this.sound == null ) ) || !this.sound.b再生中 ) )
-            //{
-            //    this.tサウンド停止();
-            //    this.tBGMフェードイン開始();
-            //    if( ( cスコア.譜面情報.Presound != null ) && ( cスコア.譜面情報.Presound.Length > 0 ) )
-            //    {
-            //        this.ct再生待ちウェイト = new CCounter( 0, CDTXMania.ConfigIni.n曲が選択されてからプレビュー音が鳴るまでのウェイトms, 1, CDTXMania.Timer );
-            //    }
-            //}
 		}
 
 
@@ -64,8 +60,8 @@ namespace TJAPlayer3
 			this.sound = null;
 			this.str現在のファイル名 = "";
 			this.ct再生待ちウェイト = null;
-			this.ctBGMフェードアウト用 = null;
-			this.ctBGMフェードイン用 = null;
+			this.ctPlaySoundフェードイン用 = new CCounter();
+			this.ctPlaySoundフェードアウト用 = new CCounter();
             this.long再生位置 = -1;
             this.long再生開始時のシステム時刻 = -1;
 			base.On活性化();
@@ -74,30 +70,34 @@ namespace TJAPlayer3
 		{
 			this.tサウンド停止();
 			this.ct再生待ちウェイト = null;
-			this.ctBGMフェードイン用 = null;
-			this.ctBGMフェードアウト用 = null;
+			this.ctPlaySoundフェードアウト用 = null;
+			this.ctPlaySoundフェードイン用 = null;
 			base.On非活性化();
 		}
 		public override int On進行描画()
 		{
 			if( !base.b活性化してない )
 			{
-				if( ( this.ctBGMフェードイン用 != null ) && this.ctBGMフェードイン用.b進行中 )
+				if( ( this.ctPlaySoundフェードイン用 != null ) && this.ctPlaySoundフェードイン用.b進行中 )
 				{
-					this.ctBGMフェードイン用.t進行();
-					TJAPlayer3.Skin.bgm選曲画面.nAutomationLevel_現在のサウンド = this.ctBGMフェードイン用.n現在の値;
-					if( this.ctBGMフェードイン用.b終了値に達した )
+					this.ctPlaySoundフェードイン用.t進行();
+
+					if(this.sound != null)
+						this.sound.AutomationLevel = this.ctPlaySoundフェードイン用.n現在の値;
+
+					if( this.ctPlaySoundフェードイン用.b終了値に達した )
 					{
-						this.ctBGMフェードイン用.t停止();
+						this.ctPlaySoundフェードイン用.t停止();
 					}
 				}
-				if( ( this.ctBGMフェードアウト用 != null ) && this.ctBGMフェードアウト用.b進行中 )
+				if( ( this.ctPlaySoundフェードアウト用 != null ) && this.ctPlaySoundフェードアウト用.b進行中 )
 				{
-					this.ctBGMフェードアウト用.t進行();
-					TJAPlayer3.Skin.bgm選曲画面.nAutomationLevel_現在のサウンド = CSound.MaximumAutomationLevel - this.ctBGMフェードアウト用.n現在の値;
-					if( this.ctBGMフェードアウト用.b終了値に達した )
+					this.ctPlaySoundフェードアウト用.t進行();
+                    if (this.sound != null)
+                        this.sound.AutomationLevel = CSound.MaximumAutomationLevel - this.ctPlaySoundフェードアウト用.n現在の値;
+					if( this.ctPlaySoundフェードアウト用.b終了値に達した )
 					{
-						this.ctBGMフェードアウト用.t停止();
+						this.ctPlaySoundフェードアウト用.t停止();
 					}
 				}
 				this.t進行処理_プレビューサウンド();
@@ -127,12 +127,13 @@ namespace TJAPlayer3
 		}
 
 
-		// その他
+        // その他
 
-		#region [ private ]
-		//-----------------
-		private CCounter ctBGMフェードアウト用;
-		private CCounter ctBGMフェードイン用;
+        #region [ private ]
+        //-----------------
+        private CancellationTokenSource token; // 2019.03.23 kairera0467 マルチスレッドの中断処理を行うためのトークン
+        private CCounter ctPlaySoundフェードイン用;
+		private CCounter ctPlaySoundフェードアウト用;
 		private CCounter ct再生待ちウェイト;
         private long long再生位置;
         private long long再生開始時のシステム時刻;
@@ -141,23 +142,23 @@ namespace TJAPlayer3
 		
 		private void tBGMフェードアウト開始()
 		{
-			if( this.ctBGMフェードイン用 != null )
+			if( this.ctPlaySoundフェードイン用 != null )
 			{
-				this.ctBGMフェードイン用.t停止();
+				this.ctPlaySoundフェードイン用.t停止();
 			}
-			this.ctBGMフェードアウト用 = new CCounter( 0, 100, 10, TJAPlayer3.Timer );
-			this.ctBGMフェードアウト用.n現在の値 = 100 - TJAPlayer3.Skin.bgm選曲画面.nAutomationLevel_現在のサウンド;
+			this.ctPlaySoundフェードアウト用 = new CCounter( 0, 100, 3, TJAPlayer3.Timer );
+			this.ctPlaySoundフェードアウト用.n現在の値 = 0;
 		}
 		private void tBGMフェードイン開始()
 		{
-			if( this.ctBGMフェードアウト用 != null )
+			if( this.ctPlaySoundフェードイン用 != null )
 			{
-				this.ctBGMフェードアウト用.t停止();
+				this.ctPlaySoundフェードアウト用.t停止();
 			}
-			this.ctBGMフェードイン用 = new CCounter( 0, 100, 20, TJAPlayer3.Timer );
-			this.ctBGMフェードイン用.n現在の値 = TJAPlayer3.Skin.bgm選曲画面.nAutomationLevel_現在のサウンド;
+			this.ctPlaySoundフェードイン用 = new CCounter( 0, 100, 3, TJAPlayer3.Timer );
+			this.ctPlaySoundフェードイン用.n現在の値 = 0;
 		}
-		private void tプレビューサウンドの作成()
+		private async void tプレビューサウンドの作成()
 		{
 			Cスコア cスコア = TJAPlayer3.stage選曲.r現在選択中のスコア;
 			if( ( cスコア != null ) && !string.IsNullOrEmpty( cスコア.譜面情報.strBGMファイル名 ) && TJAPlayer3.stage選曲.eフェーズID != CStage.Eフェーズ.選曲_NowLoading画面へのフェードアウト )
@@ -166,7 +167,16 @@ namespace TJAPlayer3
 				try
                 {
                     strPreviewFilename = cスコア.ファイル情報.フォルダの絶対パス + cスコア.譜面情報.strBGMファイル名;
-                    this.sound = TJAPlayer3.Sound管理.tサウンドを生成する( strPreviewFilename, ESoundGroup.SongPreview );
+
+					CSound tmps = await Task.Run<CSound>(() =>
+					{
+						token = new CancellationTokenSource();
+						return TJAPlayer3.Sound管理.tサウンドを生成する(strPreviewFilename, ESoundGroup.SongPreview);
+					});
+
+					token.Token.ThrowIfCancellationRequested();
+                    this.tサウンド停止();
+                    this.sound = tmps;
 
                     // 2018-08-27 twopointzero - DO attempt to load (or queue scanning) loudness metadata here.
                     //                           Initialization, song enumeration, and/or interactions may have
@@ -174,6 +184,7 @@ namespace TJAPlayer3
                     //                           If is not yet available then we wish to queue scanning.
                     var loudnessMetadata = cスコア.譜面情報.SongLoudnessMetadata
                                            ?? LoudnessMetadataScanner.LoadForAudioPath(strPreviewFilename);
+
                     TJAPlayer3.SongGainController.Set( cスコア.譜面情報.SongVol, loudnessMetadata, this.sound );
 
                     this.sound.t再生を開始する( true );
@@ -188,15 +199,8 @@ namespace TJAPlayer3
                     //    this.long再生位置 = -1;
 
                     this.str現在のファイル名 = strPreviewFilename;
-                    this.tBGMフェードアウト開始();
+                    this.tBGMフェードイン開始();
                     Trace.TraceInformation( "プレビューサウンドを生成しました。({0})", strPreviewFilename );
-                    #region[ DTXMania(コメントアウト) ]
-                    //this.sound = CDTXMania.Sound管理.tサウンドを生成する( strPreviewFilename );
-                    //this.sound.t再生を開始する( true );
-                    //this.str現在のファイル名 = strPreviewFilename;
-                    //this.tBGMフェードアウト開始();
-                    //Trace.TraceInformation( "プレビューサウンドを生成しました。({0})", strPreviewFilename );
-                    #endregion
                 }
 				catch (Exception e)
 				{
@@ -215,13 +219,11 @@ namespace TJAPlayer3
 			if( ( this.ct再生待ちウェイト != null ) && !this.ct再生待ちウェイト.b停止中 )
 			{
 				this.ct再生待ちウェイト.t進行();
-				if( !this.ct再生待ちウェイト.b終了値に達してない )
+				if (!this.ct再生待ちウェイト.b終了値に達してない)
 				{
 					this.ct再生待ちウェイト.t停止();
-					if( !TJAPlayer3.stage選曲.bスクロール中 )
-					{
-                        this.tプレビューサウンドの作成();
-					}
+					if(!TJAPlayer3.stage選曲.bスクロール中)
+						this.tプレビューサウンドの作成();
 				}
 			}
 		}

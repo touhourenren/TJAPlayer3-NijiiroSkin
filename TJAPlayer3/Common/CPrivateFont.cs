@@ -74,12 +74,13 @@ namespace TJAPlayer3
 		}
 		#endregion
 
-		protected void Initialize( string fontpath, FontFamily fontfamily, int pt, FontStyle style )
+		protected void Initialize( string fontpath, FontFamily fontfamily, int pt, FontStyle style, int edgept = 10 )
 		{
 			this._pfc = null;
 			this._fontfamily = null;
 			this._font = null;
 			this._pt = pt;
+            this._edgept = edgept;
 			this._rectStrings = new Rectangle(0, 0, 0, 0);
 			this._ptOrigin = new Point(0, 0);
 			this.bDispose完了済み = false;
@@ -298,7 +299,7 @@ namespace TJAPlayer3
 		/// <param name="gradationTopColor">グラデーション 上側の色</param>
 		/// <param name="gradationBottomColor">グラデーション 下側の色</param>
 		/// <returns>描画済テクスチャ</returns>
-		protected Bitmap DrawPrivateFont( string drawstr, DrawMode drawmode, Color fontColor, Color edgeColor, Color gradationTopColor, Color gradationBottomColor )
+		protected Bitmap DrawPrivateFont( string drawstr, DrawMode drawmode, Color fontColor, Color edgeColor, Color gradationTopColor, Color gradationBottomColor, int edgept = 10 )
 		{
 			if ( this._fontfamily == null || drawstr == null || drawstr == "" )
 			{
@@ -319,8 +320,8 @@ namespace TJAPlayer3
             // 縁取りの縁のサイズは、とりあえずフォントの大きさの1/4とする
             //int nEdgePt = (bEdge)? _pt / 4 : 0;
             //int nEdgePt = (bEdge) ? (_pt / 3) : 0; // 縁取りが少なすぎるという意見が多かったため変更。 (AioiLight)
-            int nEdgePt = (bEdge) ? (10 * _pt / TJAPlayer3.Skin.Font_Edge_Ratio) : 0; //SkinConfigにて設定可能に(rhimm)
-
+            int nEdgePt = (bEdge) ? (_edgept * _pt / TJAPlayer3.Skin.Font_Edge_Ratio) : 0; //SkinConfigにて設定可能に(rhimm)
+            
             // 描画サイズを測定する
             Size stringSize = System.Windows.Forms.TextRenderer.MeasureText( drawstr, this._font, new Size( int.MaxValue, int.MaxValue ),
 				System.Windows.Forms.TextFormatFlags.NoPrefix |
@@ -340,7 +341,7 @@ namespace TJAPlayer3
             sf.FormatFlags = StringFormatFlags.NoWrap; // どんなに長くて単語の区切りが良くても改行しない (AioiLight)
             sf.Trimming = StringTrimming.None; // どんなに長くてもトリミングしない (AioiLight)
 			// レイアウト枠
-			Rectangle r = new Rectangle( 0, 0, stringSize.Width + nEdgePt * 2 + (TJAPlayer3.Skin.Text_Correction_X * stringSize.Width / 100), stringSize.Height + nEdgePt * 2 + (TJAPlayer3.Skin.Text_Correction_Y * stringSize.Height / 100));
+			Rectangle r = new Rectangle( 0, 0, stringSize.Width + nEdgePt * 3 + (TJAPlayer3.Skin.Text_Correction_X * stringSize.Width / 100), stringSize.Height + nEdgePt * 3 + (TJAPlayer3.Skin.Text_Correction_Y * stringSize.Height / 100));
 
 			if ( bEdge )	// 縁取り有りの描画
 			{
@@ -350,6 +351,7 @@ namespace TJAPlayer3
 
 				System.Drawing.Drawing2D.GraphicsPath gp = new System.Drawing.Drawing2D.GraphicsPath();
 				gp.AddString( drawstr, this._fontfamily, (int) this._font.Style, sizeInPixels, r, sf );
+           
 
 				// 縁取りを描画する
 				Pen p = new Pen( edgeColor, nEdgePt );
@@ -547,7 +549,7 @@ namespace TJAPlayer3
 
                 // 縁取りを描画する
                 //int nEdgePt = (_pt / 3); // 縁取りをフォントサイズ基準に変更
-                int nEdgePt = (10 * _pt / TJAPlayer3.Skin.Font_Edge_Ratio_Vertical); // SkinConfigにて設定可能に(rhimm)
+                int nEdgePt = (_edgept * _pt / TJAPlayer3.Skin.Font_Edge_Ratio_Vertical); // SkinConfigにて設定可能に(rhimm)
                 Pen pV = new Pen(edgeColor, nEdgePt);
                 pV.LineJoin = System.Drawing.Drawing2D.LineJoin.Round;
                 gV.DrawPath(pV, gpV);
@@ -1016,6 +1018,7 @@ namespace TJAPlayer3
 		private System.Drawing.Text.PrivateFontCollection _pfc;
 		private FontFamily _fontfamily;
 		private int _pt;
+		private int _edgept;
 		private Rectangle _rectStrings;
 		private Point _ptOrigin;
 		//-----------------

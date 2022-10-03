@@ -101,6 +101,7 @@ namespace TJAPlayer3
                         sound.n位置 = value;
                 }
             }
+
             public int nAutomationLevel_現在のサウンド
             {
                 get
@@ -1014,6 +1015,14 @@ namespace TJAPlayer3
                                 for (int i = 0; i < 2; i++)
                                 {
                                     SongSelect_Auto_Y[i] = int.Parse(strSplit[i]);
+                                }
+                            }
+                            else if (strCommand == "SongSelect_Title_Adjust")
+                            {
+                                string[] strSplit = strParam.Split(',');
+                                for (int i = 0; i < 2; i++)
+                                {
+                                    SongSelect_Title_Adjust[i] = int.Parse(strSplit[i]);
                                 }
                             }
                             else if (strCommand == "SongSelect_ForeColor_JPOP")
@@ -2417,6 +2426,7 @@ namespace TJAPlayer3
         public int[] SongSelect_NamePlate_Y = new int[] { 650, 650 };
         public int[] SongSelect_Auto_X = new int[] { 60, 950 };
         public int[] SongSelect_Auto_Y = new int[] { 650, 650 };
+        public int[] SongSelect_Title_Adjust = new int[] { 0, 0 };
         public Color SongSelect_ForeColor_JPOP = ColorTranslator.FromHtml("#FFFFFF");
         public Color SongSelect_ForeColor_Anime = ColorTranslator.FromHtml("#FFFFFF");
         public Color SongSelect_ForeColor_VOCALOID = ColorTranslator.FromHtml("#FFFFFF");

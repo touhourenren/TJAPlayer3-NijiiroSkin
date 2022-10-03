@@ -5,7 +5,6 @@ using System.Text;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Diagnostics;
-
 namespace TJAPlayer3
 {
 	/// <summary>
@@ -38,31 +37,39 @@ namespace TJAPlayer3
 		#region [ コンストラクタ ]
 		public CPrivateFastFont( FontFamily fontfamily, int pt, FontStyle style )
 		{
-			Initialize( null, fontfamily, pt, style );
+			Initialize( null, fontfamily, pt, style, 10);
 		}
 		public CPrivateFastFont( FontFamily fontfamily, int pt )
 		{
-			Initialize( null, fontfamily, pt, FontStyle.Regular );
-		}
-		public CPrivateFastFont( string fontpath, int pt, FontStyle style )
+			Initialize( null, fontfamily, pt, FontStyle.Regular, 10);
+        }
+        public CPrivateFastFont(FontFamily fontfamily, int pt, int edgept)
+        {
+            Initialize(null, fontfamily, pt, FontStyle.Regular, edgept);
+        }
+        public CPrivateFastFont( string fontpath, int pt, FontStyle style )
 		{
-			Initialize( fontpath, null, pt, style );
+			Initialize( fontpath, null, pt, style, 10);
 		}
 		public CPrivateFastFont( string fontpath, int pt )
 		{
-			Initialize( fontpath, null, pt, FontStyle.Regular );
-		}
-		public CPrivateFastFont()
+			Initialize( fontpath, null, pt, FontStyle.Regular, 10 );
+        }
+        public CPrivateFastFont(string fontpath, int pt, int edgept)
+        {
+            Initialize(fontpath, null, pt, FontStyle.Regular, edgept);
+        }
+        public CPrivateFastFont()
 		{
 			throw new ArgumentException("CPrivateFastFont: 引数があるコンストラクタを使用してください。");
 		}
 		#endregion
 		#region [ コンストラクタから呼ばれる初期化処理 ]
-		protected new void Initialize( string fontpath, FontFamily fontfamily, int pt, FontStyle style )
+		protected new void Initialize( string fontpath, FontFamily fontfamily, int pt, FontStyle style, int edgept )
 		{
 			this.bDispose完了済み_CPrivateFastFont = false;
 			this.listFontCache = new List<FontCache>();
-			base.Initialize( fontpath, fontfamily, pt, style );
+			base.Initialize( fontpath, fontfamily, pt, style, edgept );
 		}
 		#endregion
 
@@ -88,17 +95,22 @@ namespace TJAPlayer3
 		/// <returns>描画済テクスチャ</returns>
 		public new Bitmap DrawPrivateFont( string drawstr, Color fontColor, Color edgeColor )
 		{
-			return DrawPrivateFont( drawstr, DrawMode.Edge, fontColor, edgeColor, Color.White, Color.White );
-		}
+			return DrawPrivateFont( drawstr, DrawMode.Edge, fontColor, edgeColor, Color.White, Color.White);
+        }
 
-		/// <summary>
-		/// 文字列を描画したテクスチャを返す
-		/// </summary>
-		/// <param name="drawstr">描画文字列</param>
-		/// <param name="fontColor">描画色</param>
-		/// <param name="edgeColor">縁取色</param>
-		/// <returns>描画済テクスチャ</returns>
-		public Bitmap DrawPrivateFont( string drawstr, Color fontColor, Color edgeColor, DrawMode dMode )
+        public Bitmap DrawPrivateFont(string drawstr, Color fontColor, Color edgeColor, int edgept)
+        {
+            return DrawPrivateFont(drawstr, DrawMode.Edge, fontColor, edgeColor, Color.White, Color.White, edgept);
+        }
+
+        /// <summary>
+        /// 文字列を描画したテクスチャを返す
+        /// </summary>
+        /// <param name="drawstr">描画文字列</param>
+        /// <param name="fontColor">描画色</param>
+        /// <param name="edgeColor">縁取色</param>
+        /// <returns>描画済テクスチャ</returns>
+        public Bitmap DrawPrivateFont( string drawstr, Color fontColor, Color edgeColor, DrawMode dMode )
 		{
 			return DrawPrivateFont( drawstr, dMode, fontColor, edgeColor, Color.White, Color.White );
 		}

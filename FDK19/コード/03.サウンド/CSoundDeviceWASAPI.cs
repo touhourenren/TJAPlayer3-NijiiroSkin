@@ -221,69 +221,19 @@ namespace FDK
 //Retry:
 			var flags = ( mode == Eデバイスモード.排他 ) ? BASSWASAPIInit.BASS_WASAPI_AUTOFORMAT | BASSWASAPIInit.BASS_WASAPI_EXCLUSIVE : BASSWASAPIInit.BASS_WASAPI_AUTOFORMAT;
 			//var flags = ( mode == Eデバイスモード.排他 ) ? BASSWASAPIInit.BASS_WASAPI_AUTOFORMAT | BASSWASAPIInit.BASS_WASAPI_EVENT | BASSWASAPIInit.BASS_WASAPI_EXCLUSIVE : BASSWASAPIInit.BASS_WASAPI_AUTOFORMAT | BASSWASAPIInit.BASS_WASAPI_EVENT;
-			if ( BassWasapi.BASS_WASAPI_Init( nデバイス, n周波数, nチャンネル数, flags, ( n希望バッファサイズms / 1000.0f ), ( n更新間隔ms / 1000.0f ), this.tWasapiProc, IntPtr.Zero ) )
+			if (BassWasapi.BASS_WASAPI_Init(nデバイス, n周波数, nチャンネル数, flags, (n希望バッファサイズms / 1000.0f), (n更新間隔ms / 1000.0f), this.tWasapiProc, IntPtr.Zero))
 			{
-				if( mode == Eデバイスモード.排他 )
-				{
-					#region [ 排他モードで作成成功。]
-					//-----------------
-					this.e出力デバイス = ESoundDeviceType.ExclusiveWASAPI;
+				#region [ 共有モードで作成成功。]
+				//-----------------
+				this.e出力デバイス = ESoundDeviceType.SharedWASAPI;
 
-					nDevNo = BassWasapi.BASS_WASAPI_GetDevice();
-					deviceInfo = BassWasapi.BASS_WASAPI_GetDeviceInfo( nDevNo );
-					var wasapiInfo = BassWasapi.BASS_WASAPI_GetInfo();
-					int n1サンプルのバイト数 = 2 * wasapiInfo.chans;	// default;
-					switch( wasapiInfo.format )		// BASS WASAPI で扱うサンプルはすべて 32bit float で固定されているが、デバイスはそうとは限らない。
-					{
-						case BASSWASAPIFormat.BASS_WASAPI_FORMAT_8BIT: n1サンプルのバイト数 = 1 * wasapiInfo.chans; break;
-						case BASSWASAPIFormat.BASS_WASAPI_FORMAT_16BIT: n1サンプルのバイト数 = 2 * wasapiInfo.chans; break;
-						case BASSWASAPIFormat.BASS_WASAPI_FORMAT_24BIT: n1サンプルのバイト数 = 3 * wasapiInfo.chans; break;
-						case BASSWASAPIFormat.BASS_WASAPI_FORMAT_32BIT: n1サンプルのバイト数 = 4 * wasapiInfo.chans; break;
-						case BASSWASAPIFormat.BASS_WASAPI_FORMAT_FLOAT: n1サンプルのバイト数 = 4 * wasapiInfo.chans; break;
-					}
-					int n1秒のバイト数 = n1サンプルのバイト数 * wasapiInfo.freq;
-					this.n実バッファサイズms = (long) ( wasapiInfo.buflen * 1000.0f / n1秒のバイト数 );
-					this.n実出力遅延ms = 0;	// 初期値はゼロ
-					Trace.TraceInformation( "使用デバイス: #" + nDevNo + " : " + deviceInfo.name + ", flags=" + deviceInfo.flags );
-					Trace.TraceInformation( "BASS を初期化しました。(WASAPI排他モード, {0}Hz, {1}ch, フォーマット:{2}, バッファ{3}bytes [{4}ms(希望{5}ms)], 更新間隔{6}ms)",
-						wasapiInfo.freq,
-						wasapiInfo.chans,
-						wasapiInfo.format.ToString(),
-						wasapiInfo.buflen,
-						n実バッファサイズms.ToString(),
-						n希望バッファサイズms.ToString(),
-						n更新間隔ms.ToString() );
-					Trace.TraceInformation( "デバイスの最小更新時間={0}ms, 既定の更新時間={1}ms", deviceInfo.minperiod * 1000, deviceInfo.defperiod * 1000 );
-					this.bIsBASSFree = false;
-					//-----------------
-					#endregion
-				}
-				else
-				{
-					#region [ 共有モードで作成成功。]
-					//-----------------
-					this.e出力デバイス = ESoundDeviceType.SharedWASAPI;
-					
-					this.n実出力遅延ms = 0;	// 初期値はゼロ
-					var devInfo = BassWasapi.BASS_WASAPI_GetDeviceInfo( BassWasapi.BASS_WASAPI_GetDevice() );	// 共有モードの場合、更新間隔はデバイスのデフォルト値に固定される。
-					Trace.TraceInformation( "BASS を初期化しました。(WASAPI共有モード, {0}ms, 更新間隔{1}ms)", n希望バッファサイズms, devInfo.defperiod * 1000.0f );
-					this.bIsBASSFree = false;
-					//-----------------
-					#endregion
-				}
+				this.n実出力遅延ms = 0;  // 初期値はゼロ
+				var devInfo = BassWasapi.BASS_WASAPI_GetDeviceInfo(BassWasapi.BASS_WASAPI_GetDevice()); // 共有モードの場合、更新間隔はデバイスのデフォルト値に固定される。
+				Trace.TraceInformation("BASS を初期化しました。(WASAPI共有モード, {0}ms, 更新間隔{1}ms)", n希望バッファサイズms, devInfo.defperiod * 1000.0f);
+				this.bIsBASSFree = false;
+				//-----------------
+				#endregion
 			}
-			#region [ #31737 WASAPI排他モードのみ利用可能とし、WASAPI共有モードは使用できないようにするために、WASAPI共有モードでの初期化フローを削除する。 ]
-			//else if ( mode == Eデバイスモード.排他 )
-			//{
-			//    Trace.TraceInformation("Failed to initialize setting BASS (WASAPI) mode [{0}]", Bass.BASS_ErrorGetCode().ToString() );
-			//    #region [ 排他モードに失敗したのなら共有モードでリトライ。]
-			//    //-----------------
-			//    mode = Eデバイスモード.共有;
-			//    goto Retry;
-			//    //-----------------
-			//    #endregion
-			//}
-			#endregion
 			else
 			{
 				#region [ それでも失敗したら例外発生。]
@@ -291,7 +241,7 @@ namespace FDK
 				BASSError errcode = Bass.BASS_ErrorGetCode();
 				Bass.BASS_Free();
 				this.bIsBASSFree = true;
-				throw new Exception( string.Format( "BASS (WASAPI) の初期化に失敗しました。(BASS_WASAPI_Init)[{0}]", errcode ) );
+				throw new Exception(string.Format("BASS (WASAPI) の初期化に失敗しました。(BASS_WASAPI_Init)[{0}]", errcode));
 				//-----------------
 				#endregion
 			}

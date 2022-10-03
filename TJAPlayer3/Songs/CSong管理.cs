@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading;
 using TJAPlayer3.C曲リストノードComparers;
 using FDK;
+using System.Drawing;
 
 namespace TJAPlayer3
 {
@@ -952,8 +953,9 @@ namespace TJAPlayer3
 			{
 				C曲リストノード itemRandom = new C曲リストノード();
 				itemRandom.eノード種別 = C曲リストノード.Eノード種別.RANDOM;
-				itemRandom.strタイトル = "ランダムに曲をえらぶ";
-				itemRandom.nスコア数 = (int)Difficulty.Total;
+				itemRandom.strタイトル = "ランダムにえらぶ";
+                itemRandom.BackColor = ColorTranslator.FromHtml("#513009");
+                itemRandom.nスコア数 = (int)Difficulty.Total;
 				itemRandom.r親ノード = ノードリスト[ 0 ].r親ノード;
                 
                 itemRandom.strBreadcrumbs = ( itemRandom.r親ノード == null ) ?
@@ -1005,7 +1007,8 @@ namespace TJAPlayer3
 				{
 					C曲リストノード itemBack = new C曲リストノード();
 					itemBack.eノード種別 = C曲リストノード.Eノード種別.BACKBOX;
-					itemBack.strタイトル = "とじる";
+                    itemBack.BackColor = ColorTranslator.FromHtml("#513009");
+                    itemBack.strタイトル = "とじる";
 					itemBack.nスコア数 = 1;
 					itemBack.r親ノード = c曲リストノード;
 

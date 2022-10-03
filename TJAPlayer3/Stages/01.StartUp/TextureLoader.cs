@@ -101,7 +101,7 @@ namespace TJAPlayer3
             SongSelect_Footer = TxC(SONGSELECT + @"Footer.png");
             SongSelect_Difficulty = TxC(SONGSELECT + @"Difficulty.png");
             SongSelect_Auto = TxC(SONGSELECT + @"Auto.png");
-            SongSelect_Level = TxC(SONGSELECT + @"Level.png");
+            SongSelect_Level_Number = TxC(SONGSELECT + @"Level_Number.png");
             SongSelect_Branch = TxC(SONGSELECT + @"Branch.png");
             SongSelect_Branch_Text = TxC(SONGSELECT + @"Branch_Text.png");
             SongSelect_Bar_Center = TxC(SONGSELECT + @"Bar_Center.png");
@@ -110,13 +110,16 @@ namespace TJAPlayer3
             SongSelect_Frame_BackBox = TxC(SONGSELECT + @"Frame_BackBox.png");
             SongSelect_Frame_Random = TxC(SONGSELECT + @"Frame_Random.png");
             SongSelect_Score_Select = TxC(SONGSELECT + @"Score_Select.png");
-            //SongSelect_Frame_Dani = TxC(SONGSELECT + @"Frame_Dani.png");
             SongSelect_GenreText = TxC(SONGSELECT + @"GenreText.png");
             SongSelect_Cursor_Left = TxC(SONGSELECT + @"Cursor_Left.png");
             SongSelect_Cursor_Right = TxC(SONGSELECT + @"Cursor_Right.png");
+            SongSelect_Bar_Genre_Back = TxC(SONGSELECT + @"Bar_Genre/Bar_Genre_Back.png");
+            SongSelect_Bar_Genre_Random = TxC(SONGSELECT + @"Bar_Genre/Bar_Genre_Random.png");
+            SongSelect_Bar_Genre_Overlay = TxC(SONGSELECT + @"Bar_Genre/Bar_Genre_Overlay.png");
+            SongSelect_Bar_Select_Effect = TxC(SONGSELECT + @"Bar_Select_Effect.png");
             for (int i = 0; i < SongSelect_Bar_Genre.Length; i++)
             {
-                SongSelect_Bar_Genre[i] = TxC(SONGSELECT + @"Bar_Genre_" + i.ToString() + ".png");
+                SongSelect_Bar_Genre[i] = TxC(SONGSELECT + @"Bar_Genre/Bar_Genre_" + i.ToString() + ".png");
             }
             for (int i = 0; i < (int)Difficulty.Total; i++)
             {
@@ -547,7 +550,7 @@ namespace TJAPlayer3
             TJAPlayer3.tテクスチャの解放(ref SongSelect_Footer);
             TJAPlayer3.tテクスチャの解放(ref SongSelect_Difficulty);
             TJAPlayer3.tテクスチャの解放(ref SongSelect_Auto);
-            TJAPlayer3.tテクスチャの解放(ref SongSelect_Level);
+            TJAPlayer3.tテクスチャの解放(ref SongSelect_Level_Number);
             TJAPlayer3.tテクスチャの解放(ref SongSelect_Branch);
             TJAPlayer3.tテクスチャの解放(ref SongSelect_Branch_Text);
             TJAPlayer3.tテクスチャの解放(ref SongSelect_Bar_Center);
@@ -559,6 +562,10 @@ namespace TJAPlayer3
             TJAPlayer3.tテクスチャの解放(ref SongSelect_GenreText);
             TJAPlayer3.tテクスチャの解放(ref SongSelect_Cursor_Left);
             TJAPlayer3.tテクスチャの解放(ref SongSelect_Cursor_Right);
+            TJAPlayer3.tテクスチャの解放(ref SongSelect_Bar_Genre_Back);
+            TJAPlayer3.tテクスチャの解放(ref SongSelect_Bar_Genre_Random);
+            TJAPlayer3.tテクスチャの解放(ref SongSelect_Bar_Select_Effect);
+            TJAPlayer3.tテクスチャの解放(ref SongSelect_Bar_Genre_Overlay);
             for (int i = 0; i < SongSelect_Bar_Genre.Length; i++)
             {
                 TJAPlayer3.tテクスチャの解放(ref SongSelect_Bar_Genre[i]);
@@ -860,7 +867,7 @@ namespace TJAPlayer3
             SongSelect_Footer,
             SongSelect_Difficulty,
             SongSelect_Auto,
-            SongSelect_Level,
+            SongSelect_Level_Number,
             SongSelect_Branch,
             SongSelect_Branch_Text,
             SongSelect_Frame_Score,
@@ -872,6 +879,10 @@ namespace TJAPlayer3
             SongSelect_GenreText,
             SongSelect_Cursor_Left,
             SongSelect_Cursor_Right,
+            SongSelect_Bar_Genre_Overlay,
+            SongSelect_Bar_Genre_Back,
+            SongSelect_Bar_Genre_Random,
+            SongSelect_Bar_Select_Effect,
             SongSelect_ScoreWindow_Text;
         public CTexture[] SongSelect_GenreBack = new CTexture[9],
             SongSelect_ScoreWindow = new CTexture[(int)Difficulty.Total],
