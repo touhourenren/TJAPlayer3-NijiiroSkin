@@ -5,6 +5,8 @@ DTXManiaをいじってtja再生プログラムにしちゃった[TJAPlayer2fPC]
 
 このプログラムを使用した不具合・問題については責任を負いかねます。
 
+ちんこ
+
 ## How 2 Build
 - VisualStudio 2017 & C# 7.3
 - VC++ toolset
